@@ -54,4 +54,9 @@ WHERE c.customerNumber = p.customerNumber;
 -- Implicit Joins are not recomended since at a first glance it is not clear that it is Join query. 
 -- And without WHERE clause the resultant Join will be a Cross Join having every tuple joined with every tuple in another table.
 
+-- --------------------------------
+-- Outer Join
+-- --------------------------------
 
+SELECT c.customerNumber, customerName, orderNumber  FROM customers c 
+LEFT JOIN orders o ON c.customerNumber = o.customerNumber ORDER BY c.customerNumber, orderNumber;
