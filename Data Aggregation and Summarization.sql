@@ -43,3 +43,23 @@ SELECT
 JOIN offices office ON emp.officeCode = office.officeCode GROUP BY officeCode;
 
 SELECT COUNT(officeCode), COUNT(*) FROM employees;
+
+-- ----------------------------
+-- HAVING Clause
+-- ----------------------------
+
+SELECT 
+	COUNT(employeeNumber) AS empCount, 
+    CONCAT(city)AS "Location", 
+    office.officeCode 
+    FROM employees emp
+JOIN offices office USING(officeCode)
+	-- WHERE emp.employeeNumber = (employeenumber % 2 = 0) Filtering before grouping
+	GROUP BY officeCode 
+    HAVING empCount > 4; -- Filtering after grouping
+
+-- Why not use WHERE clause instead of HAVING clause on groups with agregates functions in conditions 
+-- Because grouping is only done after the where clause and WHERE can only filter tuples using attributes in Table
+-- and HAVING clause filter out GROUPS after grouping 
+
+-- ORDER OF EXECUTION - FROM--> WHERE--> GROUP BY--> HAVING--> SELECT--> DISTINCT--> ORDER BY--> LIMIT.
