@@ -60,3 +60,33 @@ WHERE c.customerNumber = p.customerNumber;
 
 SELECT c.customerNumber, customerName, orderNumber  FROM customers c 
 LEFT JOIN orders o ON c.customerNumber = o.customerNumber ORDER BY c.customerNumber, orderNumber;
+
+-- --------------------------------
+-- Self Outer Join
+-- --------------------------------
+
+SELECT emp.employeeNumber,
+    CONCAT(emp.firstName, " ", emp.lastName) AS "Employee Name",
+    emp.jobTitle AS "Employee Role", 
+	CONCAT(mgr.firstName, " ", mgr.lastName) AS "Manager Name",
+    mgr.jobTitle AS "Manager Role"  
+	FROM employees emp
+LEFT JOIN employees mgr ON emp.reportsTo = mgr.employeeNumber;
+
+-- SELECT COUNT(employeeNumber) FROM employees WHERE reportsTo IS NULL;
+
+-- -----------------------------------
+-- USING Clause
+-- -----------------------------------
+
+SELECT 
+	o.orderNumber,
+    o.status,
+    c.customerName,
+    c.salesRepEmployeeNumber,
+    CONCAT(e.firstName, " ", e.lastName) AS "Sales Employee Name"
+    FROM orders o 
+JOIN customers c 
+	-- ON c.customerNumber = o.customerNumber
+    USING (customerNumber)
+JOIN employees e ON e.employeeNumber = c.salesRepEmployeeNumber; -- USING clause can only be used when tables being joined have similar name of columns.
