@@ -90,3 +90,11 @@ JOIN customers c
 	-- ON c.customerNumber = o.customerNumber
     USING (customerNumber)
 JOIN employees e ON e.employeeNumber = c.salesRepEmployeeNumber; -- USING clause can only be used when tables being joined have similar name of columns.
+
+-- -----------------------------
+-- NATURAL JOIN
+-- -----------------------------
+
+SELECT * FROM customers NATURAL JOIN orders;
+
+SELECT customerNumber, customerName, orderNumber FROM customers NATURAL JOIN orders;
