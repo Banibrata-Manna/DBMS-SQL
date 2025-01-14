@@ -17,3 +17,4 @@ SELECT name, rankscore FROM movies WHERE rankscore > ALL (SELECT MAX(rankscore) 
 SELECT name, rankscore FROM movies WHERE rankscore >= (SELECT MAX(rankscore) FROM movies);
 
 SELECT COUNT(*) FROM roles WHERE movie_id = 290070;
+

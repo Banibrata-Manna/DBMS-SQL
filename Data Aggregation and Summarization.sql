@@ -63,3 +63,7 @@ JOIN offices office USING(officeCode)
 -- and HAVING clause filter out GROUPS after grouping 
 
 -- ORDER OF EXECUTION - FROM--> WHERE--> GROUP BY--> HAVING--> SELECT--> DISTINCT--> ORDER BY--> LIMIT.
+
+-- Country wise count of orders, display country having more than 20 orders.
+
+SELECT COUNT(*) AS numOfOrders, c.country FROM customers c JOIN orders USING(customerNumber) GROUP BY c.country HAVING numOfOrders > 20;
