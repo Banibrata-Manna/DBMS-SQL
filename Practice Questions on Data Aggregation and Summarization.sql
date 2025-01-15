@@ -51,3 +51,16 @@ JOIN customers c USING(customerNumber)
 JOIN employees e ON e.employeeNumber = c.salesRepEmployeeNumber
 GROUP BY orderNumber 
 ORDER BY TotalCost DESC;
+
+-- Q5. Count the number of orders per customer
+
+SELECT COUNT(*) AS numberOfOrdersByCust 
+    FROM orders 
+    GROUP BY customerNumber;
+    
+SELECT COUNT(*) AS numberOfOrderPerCountry,
+		c.country,
+        o.orderDate
+        FROM orders o JOIN customers c USING(customerNumber)
+        GROUP BY c.country, o.orderDate ORDER BY c.country;
+		
