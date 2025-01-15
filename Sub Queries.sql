@@ -108,3 +108,21 @@ WHERE productLine = p.productLine
 )ORDER BY productLine, MSRP;
 
 -- Co related queries are computationally expensive because for each row outer query the inner query executes.
+
+-- ------------------
+-- EXISTS
+-- ------------------
+
+-- Find customers who have done payments
+
+SELECT * FROM customers
+WHERE customerNumber IN (
+SELECT DISTINCT customerNumber FROM payments -- This inner query can be huge and cause performance issues
+);
+
+-- Instead preparing a huge ResultSet for outer query, just use EXISTS operator
+
+SELECT * FROM customers c
+WHERE EXISTS (
+SELECT customerNumber FROM payments WHERE customerNumber = c.customerNumber
+);
