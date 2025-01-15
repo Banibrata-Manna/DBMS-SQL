@@ -126,3 +126,18 @@ SELECT * FROM customers c
 WHERE EXISTS (
 SELECT customerNumber FROM payments WHERE customerNumber = c.customerNumber
 );
+
+-- Subquery in SELECT clause
+
+SELECT *, (amount - (SELECT AVG(amount) FROM payments)) AS differenceFromAvg FROM payments;
+
+-- Sub Query in FROM clause
+SELECT * FROM 
+(
+SELECT *, (amount - (SELECT AVG(amount) FROM payments)) AS differenceFromAvg FROM payments
+) AS invoiceSummary -- ALIAS is Mandatory
+WHERE differenceFromAvg > 0;
+
+
+
+
