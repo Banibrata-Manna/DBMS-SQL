@@ -29,3 +29,14 @@ SELECT * FROM
 			(SELECT MSRP
 				FROM products WHERE productName = "1936 Mercedes-Benz 500K Special Roadster") 
 					AND productLine REGEXP("car") ORDER BY MSRP DESC;
+                    
+-- ---------------------------------------
+-- Sub Queries with AGGREGATION
+-- ---------------------------------------
+
+-- Find the cars which are costlier tha the average cost of all cars.
+
+SELECT * FROM 
+		products WHERE 
+        productLine REGEXP("car") AND 
+        MSRP > (SELECT AVG(MSRP) FROM products WHERE productLine REGEXP("car")) ORDER BY MSRP DESC;
