@@ -58,9 +58,19 @@ SELECT COUNT(*) AS numberOfOrdersByCust
     FROM orders 
     GROUP BY customerNumber;
     
+-- Q5. Count the number of orders per country
+    
 SELECT COUNT(*) AS numberOfOrderPerCountry,
 		c.country,
         o.orderDate
         FROM orders o JOIN customers c USING(customerNumber)
         GROUP BY c.country, o.orderDate ORDER BY c.country;
+        
+-- Q6. find customers whose total order value > 80000 across all their orders
 		
+SELECT SUM(od.priceEach*od.quantityOrdered) AS totalOrderValue,
+		customerNumber FROM orderdetails od
+JOIN orders o USING(orderNumber)
+JOIN customers c USING(customerNumber)
+WHERE country = 'France'
+GROUP BY customerNumber HAVING totalOrderValue > 80000 ORDER BY totalOrderValue;
