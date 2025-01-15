@@ -69,3 +69,27 @@ WHERE customerNumber IN
 SELECT DISTINCT o.customerNumber
 FROM orders o
 JOIN orderdetails od ON od.orderNumber = o.orderNumber AND od.productCode = "S18_1749" ORDER BY customerNumber DESC;
+
+-- ------------------------------------
+-- ALL Keyword
+-- ------------------------------------
+
+-- Find Products that are costlier than all Trucks
+
+SELECT * FROM products WHERE MSRP >
+	(SELECT MAX(MSRP) FROM products WHERE productLine REGEXP("truck"))ORDER BY MSRP; -- using MAX()
+    
+SELECT * FROM products WHERE MSRP > ALL
+	(SELECT MSRP FROM products WHERE productLine REGEXP("truck"))ORDER BY MSRP;
+
+-- compare a value with a set of all values, returns true if and only if the value being compared is satifying the condition with each and every value in the set of values.
+
+-- ------------------------
+-- ANY keyword
+-- ------------------------
+
+-- Find customers who have made atleast two payments
+
+SELECT * FROM customers 
+WHERE customerNumber = ANY(SELECT customerNumber FROM payments GROUP BY customerNumber HAVING COUNT(customerNumber) >= 2);
+-- compare a value with a set of all values, returns true if and only if the value being compared is satifying the condition with any of the value in the set of values.
