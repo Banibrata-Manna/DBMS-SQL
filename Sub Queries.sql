@@ -40,3 +40,32 @@ SELECT * FROM
 		products WHERE 
         productLine REGEXP("car") AND 
         MSRP > (SELECT AVG(MSRP) FROM products WHERE productLine REGEXP("car")) ORDER BY MSRP DESC;
+
+-- Customers who have never placed an order (Subqueries and Joins)
+
+-- Using Sub Query 
+SELECT * FROM customers 
+	WHERE customerNumber 
+    NOT IN(SELECT DISTINCT customerNumber FROM orders) 
+    ORDER BY customerNumber;
+    
+-- Using Joins
+SELECT c.* FROM customers c 
+LEFT JOIN orders o 
+	USING(customerNumber) 
+	WHERE o.orderNumber IS NULL ORDER BY customerNumber;
+    
+-- Customer who have ordered the product with productCode "S18_1749"
+
+-- Using SubQueries
+SELECT c.*
+FROM customers c 
+WHERE customerNumber IN 
+	(SELECT customerNumber
+		FROM orders o WHERE orderNumber IN
+			(SELECT DISTINCT orderNumber FROM orderdetails WHERE productCode = "S18_1749")) ORDER BY customerNumber DESC;
+            
+-- Using Joins
+SELECT DISTINCT o.customerNumber
+FROM orders o
+JOIN orderdetails od ON od.orderNumber = o.orderNumber AND od.productCode = "S18_1749" ORDER BY customerNumber DESC;
