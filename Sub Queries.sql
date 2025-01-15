@@ -93,3 +93,18 @@ SELECT * FROM products WHERE MSRP > ALL
 SELECT * FROM customers 
 WHERE customerNumber = ANY(SELECT customerNumber FROM payments GROUP BY customerNumber HAVING COUNT(customerNumber) >= 2);
 -- compare a value with a set of all values, returns true if and only if the value being compared is satifying the condition with any of the value in the set of values.
+
+
+-- ----------------------------
+-- Co-related Sub Query
+-- ----------------------------
+
+-- Find products that are costlier than the Average cost of products in their own productline.
+
+SELECT * FROM products p
+WHERE MSRP > (
+SELECT AVG(MSRP) FROM products
+WHERE productLine = p.productLine
+)ORDER BY productLine, MSRP;
+
+-- Co related queries are computationally expensive because for each row outer query the inner query executes.
