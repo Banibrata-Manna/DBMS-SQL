@@ -73,6 +73,8 @@ and gi.GOOD_IDENTIFICATION_TYPE_ID = 'ERP_ID' and gi.ID_VALUE  is null;
 -- ORDER_ITEM_SEQ_ID
 -- SHIP_GROUP_SEQ_ID
 
+
+
 select oi.PRODUCT_ID , p.PRODUCT_TYPE_ID , psc.PRODUCT_STORE_ID, oi.QUANTITY, oi.EXTERNAL_ID ,
 oi.ORDER_ID , oi.ORDER_ITEM_SEQ_ID , oisg.FACILITY_ID, oi.EXTERNAL_ID ,
 oh.ORDER_HISTORY_ID , oisg.SHIP_GROUP_SEQ_ID  from
@@ -86,13 +88,14 @@ join product_store_facility psf on oisg.FACILITY_ID = psf.FACILITY_ID and psf.TH
 join product_store_catalog psc on oi.PROD_CATALOG_ID = psc.PROD_CATALOG_ID and psc.THRU_DATE is null
 and psc.PRODUCT_STORE_ID = psf.PRODUCT_STORE_ID -- joining the stores that have the similar catalog of product item
 join product p on p.PRODUCT_ID = oi.PRODUCT_ID
-join order_history oh on oi.ORDER_ID = oh.ORDER_ID;
+join
+order_history oh on oi.ORDER_ID = oh.ORDER_ID and oi.ORDER_ITEM_SEQ_ID = oh.ORDER_ITEM_SEQ_ID and oi.SHIP_GROUP_SEQ_ID = oisg.SHIP_GROUP_SEQ_ID;
 
 
 
 select oi.PRODUCT_ID , p.PRODUCT_TYPE_ID , product_stores.ps, oi.QUANTITY, oi.EXTERNAL_ID ,
 oi.ORDER_ID , oi.ORDER_ITEM_SEQ_ID , oisg.FACILITY_ID, oi.EXTERNAL_ID ,
-oh.ORDER_HISTORY_ID , oisg.SHIP_GROUP_SEQ_ID  from
+oh.ORDER_HISTORY_ID , oisg.SHIP_GROUP_SEQ_ID from
 order_item oi 
 join
 order_status os on os.ORDER_ID = oi.ORDER_ID
@@ -104,7 +107,24 @@ join product_store_catalog psc using(PRODUCT_STORE_ID)
 join product_store_facility psf using(PRODUCT_STORE_ID)
 where psf.THRU_DATE is null and psc.THRU_DATE is null) as product_stores on product_stores.pci = oi.PROD_CATALOG_ID and product_stores.fi = oisg.FACILITY_ID 
 join product p on p.PRODUCT_ID = oi.PRODUCT_ID
-join order_history oh on oi.ORDER_ID = oh.ORDER_ID;
+join order_history oh on oi.ORDER_ID = oh.ORDER_ID and oi.ORDER_ITEM_SEQ_ID = oh.ORDER_ITEM_SEQ_ID and oi.SHIP_GROUP_SEQ_ID = oisg.SHIP_GROUP_SEQ_ID;
+
+
+select oi.PRODUCT_ID , p.PRODUCT_TYPE_ID , f.PRODUCT_STORE_ID , oi.QUANTITY, oi.EXTERNAL_ID ,
+oi.ORDER_ID , oi.ORDER_ITEM_SEQ_ID , oisg.FACILITY_ID, oi.EXTERNAL_ID ,
+oh.ORDER_HISTORY_ID , oisg.SHIP_GROUP_SEQ_ID from
+order_item oi
+join
+order_status os on os.ORDER_ID = oi.ORDER_ID
+and os.STATUS_ID = 'ORDER_COMPLETED' and os.STATUS_DATETIME >= '2023-08-01' and os.STATUS_DATETIME <= '2023-08-31'
+join
+order_item_ship_group oisg on oi.ORDER_ID = oisg.ORDER_ID and oi.SHIP_GROUP_SEQ_ID = oisg.SHIP_GROUP_SEQ_ID
+join 
+facility f on oisg.FACILITY_ID = f.FACILITY_ID 
+join 
+order_history oh on oi.ORDER_ID = oh.ORDER_ID and oi.ORDER_ITEM_SEQ_ID = oh.ORDER_ITEM_SEQ_ID and oi.SHIP_GROUP_SEQ_ID = oisg.SHIP_GROUP_SEQ_ID 
+join
+product p on p.PRODUCT_ID = oi.PRODUCT_ID;
 
 
 
