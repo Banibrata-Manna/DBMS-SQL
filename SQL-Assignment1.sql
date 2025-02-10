@@ -210,6 +210,18 @@ join shipment s on oh.ORDER_ID = s.PRIMARY_ORDER_ID and s.SHIPMENT_METHOD_TYPE_I
 and oh.SALES_CHANNEL_ENUM_ID = 'WEB_SALES_CHANNEL' 
 and oh.ORDER_DATE >= '2023-01-01 00:00:00' and oh.ORDER_DATE <= '2023-12-31 00:00:00';
 
+-- 10 Canceled Orders (Last Month)
+-- Business Problem:
+-- The merchandising team needs to know how many orders were canceled in the previous month and their reasons.
+-- 
+-- Fields to Retrieve:
+-- 
+-- TOTAL ORDERS
+-- CANCELATION REASON
+
+select count(*) from order_status os 
+where os.STATUS_ID = 'ORDER_CANCELLED' 
+and os.CHANGE_REASON is not null;
 
 
 
