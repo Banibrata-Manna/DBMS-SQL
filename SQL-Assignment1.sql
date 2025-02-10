@@ -175,6 +175,23 @@ order_header oh
 join order_payment_preference opp on oh.ORDER_ID = opp.ORDER_ID and opp.STATUS_ID = 'PAYMENT_RECIEVED'
 join shipment s on s.PRIMARY_ORDER_ID = oh.ORDER_ID and s.STATUS_ID != 'SHIPMENT_SHIPPED';
 
+-- 8 Orders Completed Hourly
+--Business Problem:
+--Operations teams may want to see how orders complete across the day to schedule staffing.
+--
+--Fields to Retrieve:
+--
+--TOTAL ORDERS
+--HOUR
+
+SELECT 
+    hour(os.STATUS_DATETIME) as hour, 
+    count(*) as total_orders
+from order_status os
+where os.STATUS_ID = 'ORDER_COMPLETED'
+and os.STATUS_DATETIME >= '2021-08-18 00:00:00' and os.STATUS_DATETIME < '2021-08-19 00:00:00'
+group by hour
+order by hour;
 
 
 
