@@ -190,8 +190,11 @@ SELECT
 from order_status os
 where os.STATUS_ID = 'ORDER_COMPLETED'
 and os.STATUS_DATETIME >= '2021-08-18 00:00:00' and os.STATUS_DATETIME < '2021-08-19 00:00:00'
-group by hour
-order by hour;
+group by hour;
+
+select count(*) from order_status os 
+where os.STATUS_DATETIME like '%2021-08-18%' and os.STATUS_ID = 'ORDER_COMPLETED'; -- for rechecking
+
 
 
 
