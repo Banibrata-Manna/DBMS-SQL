@@ -196,5 +196,20 @@ select count(*) from order_status os
 where os.STATUS_DATETIME like '%2021-08-18%' and os.STATUS_ID = 'ORDER_COMPLETED'; -- for rechecking
 
 
+-- 9. BOPIS Orders Revenue (Last Year)
+-- Business Problem:
+-- BOPIS (Buy Online, Pickup In Store) is a key retail strategy. Finance wants to know the revenue from BOPIS orders for the previous year.
+-- 
+-- Fields to Retrieve:
+-- 
+-- TOTAL ORDERS
+-- TOTAL REVENUE
+
+select count(*), sum(oh.GRAND_TOTAL) from order_header oh 
+join shipment s on oh.ORDER_ID = s.PRIMARY_ORDER_ID and s.SHIPMENT_METHOD_TYPE_ID = 'STOREPICKUP'
+and oh.SALES_CHANNEL_ENUM_ID = 'WEB_SALES_CHANNEL' 
+and oh.ORDER_DATE >= '2023-01-01 00:00:00' and oh.ORDER_DATE <= '2023-12-31 00:00:00';
+
+
 
 
