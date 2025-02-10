@@ -73,8 +73,6 @@ and gi.GOOD_IDENTIFICATION_TYPE_ID = 'ERP_ID' and gi.ID_VALUE  is null;
 -- ORDER_ITEM_SEQ_ID
 -- SHIP_GROUP_SEQ_ID
 
-
-
 select oi.PRODUCT_ID , p.PRODUCT_TYPE_ID , psc.PRODUCT_STORE_ID, oi.QUANTITY, oi.EXTERNAL_ID ,
 oi.ORDER_ID , oi.ORDER_ITEM_SEQ_ID , oisg.FACILITY_ID, oi.EXTERNAL_ID ,
 oh.ORDER_HISTORY_ID , oisg.SHIP_GROUP_SEQ_ID  from
@@ -90,10 +88,6 @@ and psc.PRODUCT_STORE_ID = psf.PRODUCT_STORE_ID -- joining the stores that have 
 join product p on p.PRODUCT_ID = oi.PRODUCT_ID
 join order_history oh on oi.ORDER_ID = oh.ORDER_ID;
 
-select ps.PRODUCT_STORE_ID as ps, psc.PROD_CATALOG_ID as pci, psf.FACILITY_ID as fi from product_store ps 
-join product_store_catalog psc using(PRODUCT_STORE_ID)
-join product_store_facility psf using(PRODUCT_STORE_ID)
-where psf.THRU_DATE is null and psc.THRU_DATE is null;
 
 select oi.PRODUCT_ID , p.PRODUCT_TYPE_ID , product_stores.ps, oi.QUANTITY, oi.EXTERNAL_ID ,
 oi.ORDER_ID , oi.ORDER_ITEM_SEQ_ID , oisg.FACILITY_ID, oi.EXTERNAL_ID ,
