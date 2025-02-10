@@ -126,6 +126,55 @@ order_history oh on oi.ORDER_ID = oh.ORDER_ID and oi.ORDER_ITEM_SEQ_ID = oh.ORDE
 join
 product p on p.PRODUCT_ID = oi.PRODUCT_ID;
 
+select oi.PRODUCT_ID , p.PRODUCT_TYPE_ID , oh.PRODUCT_STORE_ID , oi.QUANTITY, oi.EXTERNAL_ID ,
+oi.ORDER_ID , oi.ORDER_ITEM_SEQ_ID , oisg.FACILITY_ID, oi.EXTERNAL_ID ,
+ohs.ORDER_HISTORY_ID , oisg.SHIP_GROUP_SEQ_ID from
+order_header oh 
+join
+order_status os on os.ORDER_ID = oh.ORDER_ID
+join
+order_item oi on oh.ORDER_ID = oi.ORDER_ID 
+and os.STATUS_ID = 'ORDER_COMPLETED' and os.STATUS_DATETIME >= '2023-08-01' and os.STATUS_DATETIME <= '2023-08-31'
+join
+order_item_ship_group oisg on oi.ORDER_ID = oisg.ORDER_ID and oi.SHIP_GROUP_SEQ_ID = oisg.SHIP_GROUP_SEQ_ID
+join 
+order_history ohs on oi.ORDER_ID = ohs.ORDER_ID and oi.ORDER_ITEM_SEQ_ID = ohs.ORDER_ITEM_SEQ_ID and ohs.SHIP_GROUP_SEQ_ID = oisg.SHIP_GROUP_SEQ_ID 
+join
+product p on p.PRODUCT_ID = oi.PRODUCT_ID;
+
+
+-- 6 Newly Created Sales Orders and Payment Methods
+-- Business Problem:
+-- Finance teams need to see new orders and their payment methods for reconciliation and fraud checks.
+-- 
+-- Fields to Retrieve:
+-- 
+-- ORDER_ID
+-- TOTAL_AMOUNT
+-- PAYMENT_METHOD
+-- Shopify Order ID (if applicable)
+
+select oh.ORDER_ID , oh.GRAND_TOTAL , opp.PAYMENT_METHOD_ID , oh.ORDER_NAME from
+order_header oh
+join
+order_payment_preference opp on oh.ORDER_ID = opp.ORDER_ID;
+
+-- 7 Payment Captured but Not Shipped
+-- Business Problem:
+-- Finance teams want to ensure revenue is recognized properly. If payment is captured but no shipment has occurred, it warrants further review.
+-- 
+-- Fields to Retrieve:
+-- 
+-- ORDER_ID
+-- ORDER_STATUS
+-- PAYMENT_STATUS
+-- SHIPMENT_STATUS
+
+select oh.ORDER_ID , oh.STATUS_ID , opp.STATUS_ID , s.STATUS_ID  from
+order_header oh 
+join order_payment_preference opp on oh.ORDER_ID = opp.ORDER_ID and opp.STATUS_ID = 'PAYMENT_RECIEVED'
+join shipment s on s.PRIMARY_ORDER_ID = oh.ORDER_ID and s.STATUS_ID != 'SHIPMENT_SHIPPED';
+
 
 
 
