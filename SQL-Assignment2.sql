@@ -128,4 +128,32 @@ join facility f
 group by f.facility_id, f.facility_name;
 
 
+-- 8.1 Lost and Damaged Inventory
+-- Business Problem:
+-- Warehouse managers need to track “shrinkage” 
+--such as lost or damaged inventory to reconcile physical vs. system counts.
+-- 
+-- Fields to Retrieve:
+-- 
+-- INVENTORY_ITEM_ID
+-- PRODUCT_ID
+-- FACILITY_ID
+-- QUANTITY_LOST_OR_DAMAGED
+-- REASON_CODE (Lost, Damaged, Expired, etc.)
+-- TRANSACTION_DATE
+
+select 
+	ii.INVENTORY_ITEM_ID ,
+	ii.PRODUCT_ID ,
+	ii.FACILITY_ID ,
+	(iiv.AVAILABLE_TO_PROMISE_VAR*-1) ATP_Variation,
+	(iiv.QUANTITY_ON_HAND_VAR*-1) QOH_Variation,
+	iiv.VARIANCE_REASON_ID ,
+	iiv.CREATED_TX_STAMP as Transaction_Date 
+from
+inventory_item ii
+join inventory_item_variance iiv on ii.INVENTORY_ITEM_ID = iiv.INVENTORY_ITEM_ID
+and (iiv.VARIANCE_REASON_ID = 'VAR_DAMAGED' OR iiv.VARIANCE_REASON_ID = 'VAR_LOST');
+
+
 
