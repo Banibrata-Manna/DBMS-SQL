@@ -52,6 +52,31 @@ select p.PRODUCT_ID, p.INTERNAL_NAME , p.PRODUCT_TYPE_ID , gi.ID_VALUE  from pro
 join good_identification gi on p.PRODUCT_ID = gi.PRODUCT_ID 
 and gi.GOOD_IDENTIFICATION_TYPE_ID = 'ERP_ID' and gi.ID_VALUE  is null;
 
+-- 4 Product IDs Across Systems
+-- Business Problem:
+-- To sync an order or product across multiple systems 
+-- (e.g., Shopify, HotWax, ERP/NetSuite),
+-- the OMS needs to know each system’s unique identifier for that product.
+-- This query retrieves the Shopify ID, HotWax ID, and ERP ID (NetSuite ID) for all products.
+-- 
+-- Fields to Retrieve:
+-- 
+-- PRODUCT_ID (internal OMS ID)
+-- SHOPIFY_ID
+-- HOTWAX_ID
+-- ERP_ID or NETSUITE_ID
+
+SELECT 
+    p.PRODUCT_ID as Hotwax_ID,
+    gi_erp.ID_VALUE AS ERP_ID,
+    gi_prod.ID_VALUE AS SHOPIFY_PROD_ID
+FROM product p
+JOIN good_identification gi_erp 
+    ON gi_erp.PRODUCT_ID = p.PRODUCT_ID 
+    AND gi_erp.GOOD_IDENTIFICATION_TYPE_ID = 'ERP_ID'
+JOIN good_identification gi_prod 
+    ON gi_prod.PRODUCT_ID = p.PRODUCT_ID 
+    AND gi_prod.GOOD_IDENTIFICATION_TYPE_ID = 'SHOPIFY_PROD_ID';
 
 -- 5 Completed Orders in August 2023
 -- Business Problem:
@@ -212,7 +237,8 @@ and oh.ORDER_DATE >= '2023-01-01 00:00:00' and oh.ORDER_DATE <= '2023-12-31 00:0
 
 -- 10 Canceled Orders (Last Month)
 -- Business Problem:
--- The merchandising team needs to know how many orders were canceled in the previous month and their reasons.
+-- The merchandising team needs to know
+--how many orders were canceled in the previous month and their reasons.
 -- 
 -- Fields to Retrieve:
 -- 
