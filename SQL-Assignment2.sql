@@ -155,5 +155,54 @@ inventory_item ii
 join inventory_item_variance iiv on ii.INVENTORY_ITEM_ID = iiv.INVENTORY_ITEM_ID
 and (iiv.VARIANCE_REASON_ID = 'VAR_DAMAGED' OR iiv.VARIANCE_REASON_ID = 'VAR_LOST');
 
+-- 8.3 Retrieve the Current Facility (Physical or Virtual) of Open Orders
+-- Business Problem:
+-- The business wants to know where open orders are currently assigned,
+-- whether in a physical store or a virtual facility 
+-- (e.g., a distribution center or online fulfillment location).
+-- 
+-- Fields to Retrieve:
+-- 
+-- ORDER_ID
+-- ORDER_STATUS
+-- FACILITY_ID
+-- FACILITY_NAME
+-- FACILITY_TYPE_ID
+
+select oh.ORDER_ID ,
+	oh.STATUS_ID ,
+	oisg.FACILITY_ID ,
+	f.FACILITY_NAME,
+	f.FACILITY_TYPE_ID
+from 
+order_header oh 
+join order_item_ship_group oisg on oh.ORDER_ID = oisg.ORDER_ID and oh.STATUS_ID = 'ORDER_CREATED'
+join facility f on f.FACILITY_ID = oisg.FACILITY_ID ;
+
+-- 8.4 Items Where QOH and ATP Differ
+-- Business Problem:
+-- Sometimes the Quantity on Hand (QOH) doesn’t match the Available to Promise (ATP) 
+-- due to pending orders, reservations, or data discrepancies. 
+-- This needs review for accurate fulfillment planning.
+-- 
+-- Fields to Retrieve:
+-- 
+-- PRODUCT_ID
+-- FACILITY_ID
+-- QOH (Quantity on Hand)
+-- ATP (Available to Promise)
+-- DIFFERENCE (QOH - ATP)
+
+select 
+	ii.PRODUCT_ID ,
+	ii.FACILITY_ID ,
+	ii.AVAILABLE_TO_PROMISE_TOTAL ,
+	ii.QUANTITY_ON_HAND_TOTAL ,
+	(ii.QUANTITY_ON_HAND_TOTAL - ii.AVAILABLE_TO_PROMISE_TOTAL) as difference_ATP_QOH
+from
+inventory_item ii;
+
+
+
 
 
