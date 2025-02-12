@@ -81,10 +81,10 @@ with product_sales as (
         pa.CITY,
         pa.STATE_PROVINCE_GEO_ID,
         sum(oi.UNIT_PRICE * oi.QUANTITY) as REVENUE,
-        avg(sum(oi.QUANTITY)) over () as AVG_QUANTITY_SOLD
+        avg(SUM(oi.QUANTITY)) over () as AVG_QUANTITY_SOLD
     from order_header oh
     join order_contact_mech ocm 
-        on oh.ORDER_ID = ocm.ORDER_ID 
+        on oh.ORDER_TYPE_ID = 'SALES_ORDER' and oh.ORDER_ID = ocm.ORDER_ID 
         and ocm.CONTACT_MECH_PURPOSE_TYPE_ID = 'SHIPPING_LOCATION'
     join postal_address pa 
         on ocm.CONTACT_MECH_ID = pa.CONTACT_MECH_ID 
