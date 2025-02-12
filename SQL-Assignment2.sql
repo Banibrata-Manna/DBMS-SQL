@@ -88,7 +88,7 @@ with product_sales as (
         and ocm.CONTACT_MECH_PURPOSE_TYPE_ID = 'SHIPPING_LOCATION'
     join postal_address pa 
         on ocm.CONTACT_MECH_ID = pa.CONTACT_MECH_ID 
-        and (pa.CITY = 'New York' 
+        and (pa.CITY_GEO_ID = 'NY' 
         or pa.STATE_PROVINCE_GEO_ID = 'NY')
     join order_item oi 
         on oh.ORDER_ID = oi.ORDER_ID 
