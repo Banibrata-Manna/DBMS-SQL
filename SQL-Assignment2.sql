@@ -202,6 +202,14 @@ select
 from
 inventory_item ii;
 
+select 
+	ii.PRODUCT_ID ,
+	ii.FACILITY_ID ,
+	ii.AVAILABLE_TO_PROMISE_TOTAL ,
+	ii.QUANTITY_ON_HAND_TOTAL ,
+	(ii.QUANTITY_ON_HAND_TOTAL - ii.AVAILABLE_TO_PROMISE_TOTAL) as difference_ATP_QOH
+from
+inventory_item ii where ii.QUANTITY_ON_HAND_TOTAL - ii.AVAILABLE_TO_PROMISE_TOTAL != 0;
 
 
 
