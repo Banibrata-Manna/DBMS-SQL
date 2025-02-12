@@ -211,6 +211,42 @@ select
 from
 inventory_item ii where ii.QUANTITY_ON_HAND_TOTAL - ii.AVAILABLE_TO_PROMISE_TOTAL != 0;
 
+-- 8.6 Total Orders by Sales Channel
+-- Business Problem:
+-- Marketing and sales teams want to see how many orders come from each channel (e.g., web, mobile app, in-store POS, marketplace) to allocate resources effectively.
+-- 
+-- Fields to Retrieve:
+-- 
+-- SALES_CHANNEL
+-- TOTAL_ORDERS
+-- TOTAL_REVENUE
+-- REPORTING_PERIOD
 
+select 
+    count(oh.order_id) as total_orders,
+    sum(oh.grand_total) as total_revenue,
+    min(oh.entry_date) as min_order_entry_date,
+    max(oh.entry_date) as max_order_entry_date
+from order_header oh
+where oh.entry_date between '2020-01-01' and '2020-12-01'
+group by oh.SALES_CHANNEL_ENUM_ID;
+
+with channel_group_report as (
+    select 
+        count(oh.order_id) as total_orders, 
+        sum(oh.grand_total) as total_revenue,
+        oh.sales_channel_enum_id as sales_channel,
+        oh.entry_date as order_entry_date
+    from order_header oh
+    group by oh.sales_channel_enum_id, oh.entry_date
+)
+select 
+    sales_channel,
+    sum(total_orders) as total_orders, 
+    sum(total_revenue) as total_revenue, 
+    concat(min(order_entry_date), ' to ', max(order_entry_date)) as reporting_period
+from channel_group_report
+where order_entry_date between '2020-01-01' and '2020-12-01'
+group by sales_channel;
 
 
