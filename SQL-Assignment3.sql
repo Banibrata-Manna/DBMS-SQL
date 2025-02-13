@@ -79,6 +79,23 @@ join
 order_header oh on ri.ORDER_ID = oh.ORDER_ID;
 
 
+-- 3 Single-Return Orders (Last Month)
+-- Business Problem:
+-- The mechandising team needs a list of orders that only have one return.
+-- 
+-- Fields to Retrieve:
+-- 
+-- PARTY_ID
+-- FIRST_NAME
+
+
+select ri.ORDER_ID, sum(ri.RETURN_QUANTITY) as items_returned from
+return_header rh 
+join return_item ri on rh.RETURN_ID = ri.RETURN_ID and ri.STATUS_ID = 'RETURN_COMPLETED'
+group by ri.ORDER_ID
+having items_returned = 1;
+
+
 
 
 
