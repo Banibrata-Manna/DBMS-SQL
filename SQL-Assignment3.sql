@@ -199,6 +199,25 @@ return_adjustment ra on rh.RETURN_ID = ra.RETURN_ID
 join 
 order_header oh on ra.ORDER_ID = oh.ORDER_ID;
 
+-- 6 Orders with Multiple Returns
+-- Business Problem:
+-- Analyzing orders with multiple returns can identify potential fraud, chronic issues with certain items, or inconsistent shipping processes.
+-- 
+-- Fields to Retrieve:
+-- 
+-- ORDER_ID
+-- RETURN_ID
+-- RETURN_DATE
+-- RETURN_REASON
+-- RETURN_QUANTITY
+
+select ri.ORDER_ID, ri.RETURN_ID, rh.RETURN_DATE, ri.REASON, sum(ri.RETURN_QUANTITY) from 
+return_header rh 
+join 
+return_item ri on rh.RETURN_ID = ri.RETURN_ID 
+group by ri.ORDER_ID, ri.RETURN_ID, rh.RETURN_DATE, ri.REASON
+having sum(ri.RETURN_QUANTITY) > 1;
+
 
 
 
