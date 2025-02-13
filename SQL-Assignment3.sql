@@ -96,6 +96,79 @@ group by ri.ORDER_ID
 having items_returned = 1;
 
 
+select 
+	sum(ri.RETURN_QUANTITY) as total_returns,
+	sum(ri.RETURN_PRICE) as return_total
+	from 
+	return_header rh join
+	return_item ri on rh.RETURN_ID = ri.RETURN_ID and ri.STATUS_ID = 'RETURN_COMPLETED';
+
+
+select 
+    count(ra.RETURN_ADJUSTMENT_ID) as appeasement_count, 
+    sum(ra.AMOUNT) as total_appeasement_amount 
+    from
+    return_adjustment ra where ra.RETURN_ADJUSTMENT_TYPE_ID = 'APPEASEMENT';
+
+
+with returns_against_appeasements AS (
+    select 
+        sum(ri.RETURN_QUANTITY) AS total_returns,
+        sum(ri.RETURN_PRICE) AS return_total
+    from 
+        return_header rh
+    join 
+        return_item ri ON rh.RETURN_ID = ri.RETURN_ID
+    where 
+        ri.STATUS_ID = 'RETURN_COMPLETED'
+)
+select 
+    raa.total_returns, 
+    raa.return_total, 
+    count(ra.RETURN_ADJUSTMENT_ID) as appeasement_count, 
+    sum(ra.AMOUNT) as total_appeasement_amount
+from 
+    returns_against_appeasements raa
+join 
+    return_adjustment ra on ra.RETURN_ADJUSTMENT_TYPE_ID = 'APPEASEMENT'
+group by 
+    raa.total_returns, raa.return_total;
+
+
+-- 4 Returns and Appeasements
+-- Business Problem:
+-- The retailer needs the total amount of items, were returned as well as how many appeasements were issued.
+-- 
+-- Fields to Retrieve:
+-- 
+-- TOTAL RETURNS
+-- RETURN $ TOTAL
+-- TOTAL APPEASEMENTS
+-- APPEASEMENTS $ TOTAL
+
+select 
+    r.total_returns,
+    r.return_total,
+    a.appeasement_count,
+    a.total_appeasement_amount
+from 
+(select 
+    sum(ri.return_quantity) as total_returns,
+    sum(ri.return_price) as return_total
+ from return_header rh
+ join return_item ri on rh.return_id = ri.return_id
+ where ri.status_id = 'RETURN_COMPLETED'
+) r
+cross join 
+(select 
+    count(ra.return_adjustment_id) as appeasement_count, 
+    sum(ra.amount) as total_appeasement_amount 
+ from return_adjustment ra 
+ where ra.return_adjustment_type_id = 'APPEASEMENT'
+) a;
+
+
+
 
 
 
