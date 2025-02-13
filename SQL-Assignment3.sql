@@ -211,12 +211,11 @@ order_header oh on ra.ORDER_ID = oh.ORDER_ID;
 -- RETURN_REASON
 -- RETURN_QUANTITY
 
-select ri.ORDER_ID, ri.RETURN_ID, rh.RETURN_DATE, ri.REASON, sum(ri.RETURN_QUANTITY) from 
+select ri.ORDER_ID, ri.RETURN_ID, rh.RETURN_DATE, ri.REASON, ri.RETURN_QUANTITY  from 
 return_header rh 
 join 
-return_item ri on rh.RETURN_ID = ri.RETURN_ID 
-group by ri.ORDER_ID, ri.RETURN_ID, rh.RETURN_DATE, ri.REASON
-having sum(ri.RETURN_QUANTITY) > 1;
+return_item ri on rh.RETURN_ID = ri.RETURN_ID and ri.STATUS_ID = 'RETURN_COMPLETED'
+where ri.RETURN_QUANTITY > 1;
 
 
 
