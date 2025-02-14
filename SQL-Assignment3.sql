@@ -218,8 +218,33 @@ return_item ri on rh.RETURN_ID = ri.RETURN_ID and ri.STATUS_ID = 'RETURN_COMPLET
 group by ri.ORDER_ID
 having sum(ri.RETURN_QUANTITY) > 1;
 
+-- 7 Store with Most One-Day Shipped Orders (Last Month)
+-- Business Problem:
+-- Identify which facility (store) handled the highest volume of “one-day shipping” orders in the previous month, useful for operational benchmarking.
+-- 
+-- Fields to Retrieve:
+-- FACLITY_NAME
+-- FACILITY_ID
+-- TOTAL_ONE_DAY_SHIP_ORDERS
+-- REPORTING_PERIOD
 
 
+select s.origin_facility_id as facility_id, f.FACILITY_NAME as name,
+       count(distinct s.primary_order_id) as total_one_day_ship_orders,
+       concat(date_format(now() - interval 1 month, '%Y-%m-01'), ' to ',
+       	last_day(now() - interval 1 month))
+       as reporting_period
+from shipment s
+join shipment_method_type smt 
+    on s.shipment_method_type_id = smt.shipment_method_type_id
+    and s.status_id = 'SHIPMENT_SHIPPED'
+join facility f on f.FACILITY_ID = s.ORIGIN_FACILITY_ID 
+where (smt.parent_type_id = 'NEXT_DAY' or s.SHIPMENT_METHOD_TYPE_ID = 'NEXT_DAY')
+and s.last_modified_date >= date_format(now() - interval 1 month, '%Y-%m-01')
+and s.last_modified_date <= last_day(now() - interval 1 month)
+group by s.origin_facility_id, f.FACILITY_NAME
+order by total_one_day_ship_orders desc
+limit 1;
 
 
 
