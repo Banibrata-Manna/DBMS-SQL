@@ -284,6 +284,25 @@ picklist_role pr
 join person p on pr.PARTY_ID = p.PARTY_ID
 join picklist pl on pr.PICKLIST_ID = pl.PICKLIST_ID;
 
+-- 9 Total Facilities That Sell the Product
+-- Business Problem:
+-- Retailers want to see how many (and which) facilities (stores, warehouses, virtual sites) currently offer a product for sale.
+-- 
+-- Fields to Retrieve:
+-- 
+-- PRODUCT_ID
+-- PRODUCT_NAME (or INTERNAL_NAME)
+-- FACILITY_COUNT (number of facilities selling the product)
+-- (Optionally) a list of FACILITY_IDs if more detail is needed
 
+with product_kept_by_facilty as(
+	select pf.PRODUCT_ID as product_id, count(*) facility_count from 
+	product_facility pf 
+	group by pf.PRODUCT_ID
+) select 
+		p.PRODUCT_ID , pkf.facility_count 
+	from
+	product p join
+	product_kept_by_facilty pkf on p.PRODUCT_ID = pkf.product_id;
 
 
