@@ -305,4 +305,25 @@ with product_kept_by_facilty as(
 	product p join
 	product_kept_by_facilty pkf on p.PRODUCT_ID = pkf.product_id;
 
+-- 10 Total Items in Various Virtual Facilities
+-- Business Problem:
+-- Virtual facilities (such as online-only fulfillment centers) handle a different inventory process. The company wants a snapshot of total stock across these virtual locations.
+-- 
+-- Fields to Retrieve:
+-- 
+-- PRODUCT_ID
+-- FACILITY_ID
+-- FACILITY_TYPE_ID
+-- QOH (Quantity on Hand)
+-- ATP (Available to Promise)
 
+with products_for_brokering as(
+	select distinct oi.PRODUCT_ID as product_id from order_item oi 
+	join order_item_ship_group oisg on oi.ORDER_ID = oisg.ORDER_ID 
+	and oi.SHIP_GROUP_SEQ_ID = oisg.SHIP_GROUP_SEQ_ID
+	and (oisg.FACILITY_ID = '_NA_' or oisg.FACILITY_ID = 'VIRTUAL_FACILITY')
+)
+select pfb.product_id, ii.FACILITY_ID, f.FACILITY_TYPE_ID,
+ii.QUANTITY_ON_HAND_TOTAL , ii.AVAILABLE_TO_PROMISE_TOTAL  from inventory_item ii 
+join products_for_brokering pfb on ii.PRODUCT_ID = pfb.product_id 
+join facility f on ii.FACILITY_ID = f.FACILITY_ID;
