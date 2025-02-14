@@ -269,7 +269,20 @@ picklist_role pr
 join person p on pr.PARTY_ID = p.PARTY_ID
 join picklist pl on pr.PICKLIST_ID = pl.PICKLIST_ID;
 
-
+select 
+	p.PARTY_ID ,
+	concat(p.FIRST_NAME, ' ', p.LAST_NAME),
+	pr.ROLE_TYPE_ID ,
+	pl.FACILITY_ID,
+	case
+		when pr.THRU_DATE is null or pr.THRU_DATE > date_format(now(), '%Y-%m-%d')
+		then 'Active'
+		when pr.THRU_DATE is null then 'Inactive'
+	end as status
+from 
+picklist_role pr 
+join person p on pr.PARTY_ID = p.PARTY_ID
+join picklist pl on pr.PICKLIST_ID = pl.PICKLIST_ID;
 
 
 
