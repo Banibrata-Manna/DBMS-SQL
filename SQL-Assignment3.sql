@@ -246,6 +246,28 @@ group by s.origin_facility_id, f.FACILITY_NAME
 order by total_one_day_ship_orders desc
 limit 1;
 
+-- 8 List of Warehouse Pickers
+-- Business Problem:
+-- Warehouse managers need a list of employees responsible for picking and packing orders to manage shifts, productivity, and training needs.
+-- 
+-- Fields to Retrieve:
+-- 
+-- PARTY_ID (or Employee ID)
+-- NAME (First/Last)
+-- ROLE_TYPE_ID (e.g., “WAREHOUSE_PICKER”)
+-- FACILITY_ID (assigned warehouse)
+-- STATUS (active or inactive employee)
+
+select 
+	p.PARTY_ID ,
+	concat(p.FIRST_NAME, ' ', p.LAST_NAME),
+	pr.ROLE_TYPE_ID ,
+	pl.FACILITY_ID,
+	pr.THRU_DATE 
+from 
+picklist_role pr 
+join person p on pr.PARTY_ID = p.PARTY_ID
+join picklist pl on pr.PICKLIST_ID = pl.PICKLIST_ID;
 
 
 
