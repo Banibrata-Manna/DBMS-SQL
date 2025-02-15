@@ -327,3 +327,27 @@ select pfb.product_id, ii.FACILITY_ID, f.FACILITY_TYPE_ID,
 ii.QUANTITY_ON_HAND_TOTAL , ii.AVAILABLE_TO_PROMISE_TOTAL  from inventory_item ii 
 join products_for_brokering pfb on ii.PRODUCT_ID = pfb.product_id 
 join facility f on ii.FACILITY_ID = f.FACILITY_ID;
+
+
+-- 12 Orders Without Picklist
+-- Business Problem:
+-- A picklist is necessary for warehouse staff to gather items. Orders missing a picklist might be delayed and need attention.
+-- 
+-- Fields to Retrieve:
+-- 
+-- ORDER_ID
+-- ORDER_DATE
+-- ORDER_STATUS
+-- FACILITY_ID
+-- DURATION (How long has the order been assigned at the facility)
+
+select oisg.ORDER_ID, oh.ORDER_DATE, oh.STATUS_ID,
+oisg.SHIP_GROUP_SEQ_ID , oisg.FACILITY_ID,
+datediff(now(), oisg.LAST_UPDATED_STAMP) from
+order_header oh 
+join order_item oi on oh.ORDER_ID = oi.ORDER_ID and oh.STATUS_ID = 'ORDER_APPROVED'
+join order_item_ship_group oisg on oi.ORDER_ID = oisg.ORDER_ID
+and oi.SHIP_GROUP_SEQ_ID = oisg.SHIP_GROUP_SEQ_ID
+left join picklist_bin pb on pb.PRIMARY_ORDER_ID = oisg.ORDER_ID 
+and pb.PRIMARY_SHIP_GROUP_SEQ_ID = oisg.SHIP_GROUP_SEQ_ID
+where pb.PRIMARY_ORDER_ID is null and pb.PRIMARY_SHIP_GROUP_SEQ_ID is null;
