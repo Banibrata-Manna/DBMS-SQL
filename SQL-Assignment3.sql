@@ -1,6 +1,7 @@
 -- 1 Completed Sales Orders (Physical Items)
 -- Business Problem:
--- Merchants need to track only physical items (requiring shipping and fulfillment) for logistics and shipping-cost analysis.
+-- Merchants need to track only physical items (requiring shipping and fulfillment)
+--for logistics and shipping-cost analysis.
 -- 
 -- Fields to Retrieve:
 -- 
@@ -37,8 +38,8 @@ order_status os on oi.ORDER_ID = os.ORDER_ID and oi.ORDER_ITEM_SEQ_ID = os.ORDER
 join
 product p on oi.PRODUCT_ID = p.PRODUCT_ID
 join 
-product_type pt on p.PRODUCT_TYPE_ID = pt.PRODUCT_TYPE_ID;
-
+product_type pt on p.PRODUCT_TYPE_ID = pt.PRODUCT_TYPE_ID
+where pt.IS_PHYSICAL = 'Y';
 
 -- 2 Completed Return Items
 -- Business Problem:
@@ -88,51 +89,62 @@ order_header oh on ri.ORDER_ID = oh.ORDER_ID;
 -- PARTY_ID
 -- FIRST_NAME
 
-
-select ri.ORDER_ID, sum(ri.RETURN_QUANTITY) as items_returned from
-return_header rh 
-join return_item ri on rh.RETURN_ID = ri.RETURN_ID and ri.STATUS_ID = 'RETURN_COMPLETED'
-group by ri.ORDER_ID
-having items_returned = 1;
-
-
-select 
-	sum(ri.RETURN_QUANTITY) as total_returns,
-	sum(ri.RETURN_PRICE) as return_total
-	from 
-	return_header rh join
-	return_item ri on rh.RETURN_ID = ri.RETURN_ID and ri.STATUS_ID = 'RETURN_COMPLETED';
-
-
-select 
-    count(ra.RETURN_ADJUSTMENT_ID) as appeasement_count, 
-    sum(ra.AMOUNT) as total_appeasement_amount 
-    from
-    return_adjustment ra where ra.RETURN_ADJUSTMENT_TYPE_ID = 'APPEASEMENT';
-
-
-with returns_against_appeasements AS (
-    select 
-        sum(ri.RETURN_QUANTITY) AS total_returns,
-        sum(ri.RETURN_PRICE) AS return_total
-    from 
-        return_header rh
-    join 
-        return_item ri ON rh.RETURN_ID = ri.RETURN_ID
-    where 
-        ri.STATUS_ID = 'RETURN_COMPLETED'
+with single_item_returns as(
+	select ri.ORDER_ID as order_id , sum(ri.RETURN_QUANTITY) as items_returned from
+	return_header rh 
+	join return_item ri on rh.RETURN_ID = ri.RETURN_ID and ri.STATUS_ID = 'RETURN_COMPLETED'
+	group by ri.ORDER_ID
+	having items_returned = 1
 )
-select 
-    raa.total_returns, 
-    raa.return_total, 
-    count(ra.RETURN_ADJUSTMENT_ID) as appeasement_count, 
-    sum(ra.AMOUNT) as total_appeasement_amount
-from 
-    returns_against_appeasements raa
-join 
-    return_adjustment ra on ra.RETURN_ADJUSTMENT_TYPE_ID = 'APPEASEMENT'
-group by 
-    raa.total_returns, raa.return_total;
+select p.PARTY_ID, p.FIRST_NAME, sir.order_id from order_role or2 join single_item_returns sir
+on or2.ORDER_ID = sir.order_id
+join person p on p.PARTY_ID = or2.PARTY_ID and or2.ROLE_TYPE_ID = 'PLACING_CUSTOMER';
+
+
+--select ri.ORDER_ID, sum(ri.RETURN_QUANTITY) as items_returned from
+--return_header rh 
+--join return_item ri on rh.RETURN_ID = ri.RETURN_ID and ri.STATUS_ID = 'RETURN_COMPLETED'
+--group by ri.ORDER_ID
+--having items_returned = 1;
+--
+--
+--select 
+--	sum(ri.RETURN_QUANTITY) as total_returns,
+--	sum(ri.RETURN_PRICE) as return_total
+--	from 
+--	return_header rh join
+--	return_item ri on rh.RETURN_ID = ri.RETURN_ID and ri.STATUS_ID = 'RETURN_COMPLETED';
+--
+--
+--select 
+--    count(ra.RETURN_ADJUSTMENT_ID) as appeasement_count, 
+--    sum(ra.AMOUNT) as total_appeasement_amount 
+--    from
+--    return_adjustment ra where ra.RETURN_ADJUSTMENT_TYPE_ID = 'APPEASEMENT';
+--
+--
+--with returns_against_appeasements AS (
+--    select 
+--        sum(ri.RETURN_QUANTITY) AS total_returns,
+--        sum(ri.RETURN_PRICE) AS return_total
+--    from 
+--        return_header rh
+--    join 
+--        return_item ri ON rh.RETURN_ID = ri.RETURN_ID
+--    where 
+--        ri.STATUS_ID = 'RETURN_COMPLETED'
+--)
+--select 
+--    raa.total_returns, 
+--    raa.return_total, 
+--    count(ra.RETURN_ADJUSTMENT_ID) as appeasement_count, 
+--    sum(ra.AMOUNT) as total_appeasement_amount
+--from 
+--    returns_against_appeasements raa
+--join 
+--    return_adjustment ra on ra.RETURN_ADJUSTMENT_TYPE_ID = 'APPEASEMENT'
+--group by 
+--    raa.total_returns, raa.return_total;
 
 
 -- 4 Returns and Appeasements
