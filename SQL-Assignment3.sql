@@ -57,13 +57,13 @@ where pt.IS_PHYSICAL = 'Y';
 -- RETURN_DATE
 -- ENTRY_DATE
 -- RETURN_CHANNEL_ENUM_ID
+-- cost = 17989.91
 
 select
 	rh.RETURN_ID ,
 	ri.ORDER_ID ,
 	oh.PRODUCT_STORE_ID ,
-	rs.STATUS_ID ,
-	rs.STATUS_DATETIME ,
+	ri.STATUS_ID ,
 	oh.ORDER_NAME ,
 	rh.FROM_PARTY_ID ,
 	rh.RETURN_DATE ,
@@ -72,10 +72,7 @@ select
 from 
 return_header rh 
 join 
-return_item ri on rh.RETURN_ID = ri.RETURN_ID 
-join 
-return_status rs on rh.RETURN_ID = rs.RETURN_ID 
-and ri.RETURN_ITEM_SEQ_ID = rs.RETURN_ITEM_SEQ_ID 
+return_item ri on rh.RETURN_ID = ri.RETURN_ID and ri.STATUS_ID = 'RETURN_COMPLETED'
 join 
 order_header oh on ri.ORDER_ID = oh.ORDER_ID;
 
@@ -196,6 +193,8 @@ cross join
 -- RETURN_DATE
 -- PRODUCT_STORE_ID
 
+-- Cost = 5167
+
 select rh.RETURN_ID, 
 	rh.ENTRY_DATE ,
 	ra.RETURN_ADJUSTMENT_ID ,
@@ -206,8 +205,10 @@ select rh.RETURN_ID,
 	oh.PRODUCT_STORE_ID 
 from 
 return_header rh 
+join
+return_item ri on ri.RETURN_ID = rh.RETURN_ID
 join 
-return_adjustment ra on rh.RETURN_ID = ra.RETURN_ID 
+return_adjustment ra on rh.RETURN_ID = ra.RETURN_ID and ra.RETURN_ITEM_SEQ_ID = ri.RETURN_ITEM_SEQ_ID
 join 
 order_header oh on ra.ORDER_ID = oh.ORDER_ID;
 

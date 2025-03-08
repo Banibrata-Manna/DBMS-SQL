@@ -9,6 +9,8 @@
 
 -- Cost - 7504
 
+-- Reason - Simply counted 
+
 select count(*), sum(oh.GRAND_TOTAL) from order_header oh 
 join shipment s on oh.ORDER_ID = s.PRIMARY_ORDER_ID and s.SHIPMENT_METHOD_TYPE_ID = 'STOREPICKUP'
 and oh.SALES_CHANNEL_ENUM_ID = 'WEB_SALES_CHANNEL' 
@@ -25,6 +27,8 @@ and oh.ORDER_DATE >= '2023-01-01 00:00:00' and oh.ORDER_DATE <= '2023-12-31 00:0
 -- HOUR
 
 -- Cost 14719
+
+-- Reason - 
 
 SELECT 
     hour(os.STATUS_DATETIME) as hour, 
@@ -50,6 +54,8 @@ group by hour;
 
 -- cost - 217177
 
+-- Reason - found the difference between total QOH and for ATP all inventory items of a product at a facility by grouping the records by inventory item by product id and facility id. 
+
 select 
 	ii.PRODUCT_ID ,
 	ii.FACILITY_ID ,
@@ -73,6 +79,8 @@ group by ii.PRODUCT_ID, ii.FACILITY_ID having difference_ATP_QOH != 0;
 
 -- cost - 4203.99
 
+-- Reason - grouped orders shipped by a facility by shipment records having 'SHIPMENT_SHIPPED' status having method 'NEXT_DAY' 
+
 select s.origin_facility_id as facility_id, f.FACILITY_NAME as name,
        count(distinct s.primary_order_id) as total_one_day_ship_orders,
        concat(date_format(now() - interval 2 month, '%Y-%m-01'), ' to ',
@@ -84,8 +92,8 @@ join shipment_method_type smt
     and s.status_id = 'SHIPMENT_SHIPPED'
 join facility f on f.FACILITY_ID = s.ORIGIN_FACILITY_ID 
 where (smt.parent_type_id = 'NEXT_DAY' or s.SHIPMENT_METHOD_TYPE_ID = 'NEXT_DAY')
-and s.last_modified_date >= date_format(now() - interval 2 month, '%Y-%m-01')
-and s.last_modified_date <= last_day(now() - interval 2 month)
+and s.created_date >= date_format(now() - interval 2 month, '%Y-%m-01')
+and s.created_date <= last_day(now() - interval 2 month)
 group by s.origin_facility_id, f.FACILITY_NAME
 order by total_one_day_ship_orders desc
 limit 1;
@@ -105,6 +113,9 @@ limit 1;
 -- ERP_ID or NETSUITE_ID
 
 -- Cost - 222982
+
+-- Reason - Joined Product table with two good_identification aliases to get both erp and shopify product id 
+-- for a product in a single tuple. 
 
 SELECT 
     p.PRODUCT_ID as Hotwax_ID,
