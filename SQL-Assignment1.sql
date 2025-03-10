@@ -49,6 +49,10 @@ product_type pt on p.PRODUCT_TYPE_ID = pt.PRODUCT_TYPE_ID and pt.IS_PHYSICAL = '
 -- NETSUITE_ID (or similar field indicating the NetSuite ID; may be NULL or empty if missing)
 
 select p.PRODUCT_ID, p.INTERNAL_NAME , p.PRODUCT_TYPE_ID , gi.ID_VALUE  from product p
+left join good_identification gi on p.PRODUCT_ID = gi.PRODUCT_ID 
+and gi.GOOD_IDENTIFICATION_TYPE_ID = 'ERP_ID' and gi.GOOD_IDENTIFICATION_TYPE_ID is null;
+
+select p.PRODUCT_ID, p.INTERNAL_NAME , p.PRODUCT_TYPE_ID , gi.ID_VALUE  from product p
 join good_identification gi on p.PRODUCT_ID = gi.PRODUCT_ID 
 and gi.GOOD_IDENTIFICATION_TYPE_ID = 'ERP_ID' and gi.ID_VALUE  is null;
 
