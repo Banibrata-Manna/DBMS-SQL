@@ -27,3 +27,14 @@ JOIN shipment s ON s.SHIPMENT_ID = ris.SHIPMENT_ID
 JOIN product_facility pf ON pf.PRODUCT_ID = ri.PRODUCT_ID AND s.DESTINATION_FACILITY_ID = pf.FACILITY_ID
 JOIN inventory_item_detail iid ON iid.INVENTORY_ITEM_ID = pf.INVENTORY_ITEM_ID AND iid.RETURN_ID = ri.RETURN_ID
 ORDER BY rh.ENTRY_DATE DESC;
+
+-- Net transfer Orders between two facilities
+
+WITH TRAN_SHIP AS (
+  SELECT s.ORIGIN_FACILITY_ID AS ofac, s.DESTINATION_FACILITY_ID AS dfac, si.PRODUCT_ID AS p_id, si.QUANTITY AS quantity FROM shipment s
+  JOIN shipment_item si ON si.SHIPMENT_ID = s.SHIPMENT_ID 
+  AND s.SHIPMENT_TYPE_ID = 'OUT_TRANSFER' AND s.STATUS_ID = 'SHIPMENT_SHIPPED'
+)
+SELECT ts1.ofac, ts1.dfac, p.INTERNAL_NAME, SUM(ts1.quantity - ts2.quantity) AS Net_Quantity FROM TRAN_SHIP ts1 JOIN TRAN_SHIP ts2 ON ts1.ofac = ts2.dfac AND ts1.dfac = ts2.ofac AND ts1.p_id = ts2.p_id
+JOIN product p ON p.PRODUCT_ID = ts1.p_id
+GROUP BY ts1.p_id, ts1.ofac, ts2.ofac, ts1.dfac, ts2.dfac;
