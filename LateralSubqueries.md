@@ -29,7 +29,7 @@ sequenceDiagram
 ### LATERAL Subquery
 ```mermaid
 sequenceDiagram
-    box rgb(33, 50, 60) LATERAL Subquery
+    box rgba(117, 119, 124, 1) LATERAL Subquery
     participant DB2 as Query Engine
     participant T2 as Outer Table (Customers)
     participant SQ2 as LATERAL Subquery
