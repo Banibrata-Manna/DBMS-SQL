@@ -13,7 +13,7 @@ To really understand `LATERAL`, it helps to see how the database execution engin
 ### Standard Subquery / JOIN
 ```mermaid
 sequenceDiagram
-    box rgb(40, 44, 52) Standard Subquery / JOIN
+    box rgba(117, 119, 124, 1) Standard Subquery / JOIN
     participant DB1 as Query Engine
     participant T1 as Outer Table (Customers)
     participant SQ1 as Subquery (All Orders)
@@ -93,15 +93,11 @@ While they use the same underlying engine mechanics, their **purpose and output 
 2. **"Top N per category"**: As shown above, calculating limited result sets per associated foreign key.
 3. **Performance**: In scenarios involving heavily indexed tables, it can be much faster for the engine to execute index-lookups row-by-row (using LATERAL) than to aggregate/sort the entire massive `orders` table in memory just to discard 99% of it.
 
-## 4. Great References for Further Reading
+## 5. Great References for Further Reading
 
 If you want to dive deeper into this topic over a cup of coffee, here are the absolute best industry resources and tutorials explaining `LATERAL`:
 
-1. **[Crunchy Data: What is a PostgreSQL LATERAL JOIN?](https://www.crunchydata.com/blog/what-is-a-postgresql-lateral-join)**
-   *A fantastic, highly readable tutorial that steps through practical use-cases with great PostgreSQL examples.*
-2. **[Modern-SQL: LATERAL](https://modern-sql.com/feature/lateral)**
-   *Markus Winand, the SQL master behind "Use The Index, Luke," thoroughly explains LATERAL, giving its background relative to the SQL Standard and how it replaces tedious queries.*
-3. **[PostgreSQL Official Docs: LATERAL Subqueries](https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-LATERAL)**
-   *The definitive guide. Short, to the point, and strictly defines what scoping is available inside a `LATERAL` clause.*
-4. **[Baeldung: Guide to LATERAL Joins in SQL](https://www.baeldung.com/sql/lateral-joins)**
+1. **[Baeldung: Guide to LATERAL Joins in SQL](https://www.baeldung.com/sql/lateral-join-vs-subquery#lateral-joins)**
    *A more comparative look that contrasts LATERAL across different RDBMS dialects (like SQL Server's CROSS APPLY).*
+2. **[PostgreSQL Official Docs: LATERAL Subqueries](https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-LATERAL)**
+   *The definitive guide. Short, to the point, and strictly defines what scoping is available inside a `LATERAL` clause.*
