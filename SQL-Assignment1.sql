@@ -1,6 +1,16 @@
 -- The marketing team ran a campaign in June 2023 and 
 -- wants to see how many new customers signed up during that period.
 
+-- Fields to Retrieve:
+
+-- PARTY_ID
+-- FIRST_NAME
+-- LAST_NAME
+-- EMAIL
+-- PHONE
+-- ENTRY_DATE
+
+-- Solution 1
 select
 p.FIRST_NAME,p.LAST_NAME,
 (select cm.INFO_STRING from contact_mech cm 
@@ -12,6 +22,113 @@ from
 person p
 join party_role pr on pr.PARTY_ID = p.PARTY_ID and
 p.CREATED_STAMP >= '2023-06-01' and p.CREATED_STAMP <='2023-06-30' and pr.ROLE_TYPE_ID = "CUSTOMER";
+
+-- Solution 2 (Correlated Subqueries — original)
+
+SELECT
+  P.PARTY_ID,
+  PER.FIRST_NAME,
+  PER.LAST_NAME,
+  (
+    SELECT
+      CM.INFO_STRING
+    FROM
+      PARTY_CONTACT_MECH PCM
+      JOIN CONTACT_MECH CM ON PCM.CONTACT_MECH_ID = CM.CONTACT_MECH_ID AND CM.CONTACT_MECH_TYPE_ID = 'EMAIL_ADDRESS'
+      WHERE  (
+        PCM.THRU_DATE IS NULL
+        OR PCM.THRU_DATE > NOW()
+      ) AND PCM.PARTY_ID = P.PARTY_ID
+    LIMIT
+      1
+  ) AS 'email',
+  (
+    SELECT
+      CM.CONTACT_NUMBER
+    FROM
+      PARTY_CONTACT_MECH PCM
+      JOIN TELECOM_NUMBER CM ON PCM.CONTACT_MECH_ID = CM.CONTACT_MECH_ID
+      WHERE (
+        PCM.THRU_DATE IS NULL
+        OR PCM.THRU_DATE > NOW()
+      ) AND PCM.PARTY_ID = P.PARTY_ID
+    LIMIT
+      1
+  ) AS 'phone'
+FROM
+  PARTY P
+  JOIN PERSON PER ON PER.PARTY_ID = P.PARTY_ID
+  AND (
+    CREATED_DATE <= '2026-05-31'
+    AND CREATED_DATE >= '2026-05-01'
+  );
+
+-- Solution 2 — CTE rewrite
+-- Pre-aggregates email and phone per party before the main join,
+-- so contact lookups run once instead of once per row.
+
+WITH new_customers AS (
+  SELECT P.PARTY_ID, P.CREATED_DATE
+  FROM PARTY P
+  WHERE P.CREATED_DATE >= '2026-05-01'
+    AND P.CREATED_DATE <= '2026-05-31'
+),
+customer_emails AS (
+  SELECT PCM.PARTY_ID, MIN(CM.INFO_STRING) AS EMAIL
+  FROM PARTY_CONTACT_MECH PCM
+  JOIN CONTACT_MECH CM ON PCM.CONTACT_MECH_ID = CM.CONTACT_MECH_ID
+  WHERE CM.CONTACT_MECH_TYPE_ID = 'EMAIL_ADDRESS'
+    AND (PCM.THRU_DATE IS NULL OR PCM.THRU_DATE > NOW())
+  GROUP BY PCM.PARTY_ID
+),
+customer_phones AS (
+  SELECT PCM.PARTY_ID, MIN(TN.CONTACT_NUMBER) AS PHONE
+  FROM PARTY_CONTACT_MECH PCM
+  JOIN TELECOM_NUMBER TN ON PCM.CONTACT_MECH_ID = TN.CONTACT_MECH_ID
+  WHERE (PCM.THRU_DATE IS NULL OR PCM.THRU_DATE > NOW())
+  GROUP BY PCM.PARTY_ID
+)
+SELECT
+  NC.PARTY_ID,
+  PER.FIRST_NAME,
+  PER.LAST_NAME,
+  CE.EMAIL,
+  CP.PHONE,
+  NC.CREATED_DATE AS ENTRY_DATE
+FROM new_customers NC
+JOIN PERSON PER ON PER.PARTY_ID = NC.PARTY_ID
+LEFT JOIN customer_emails CE ON CE.PARTY_ID = NC.PARTY_ID
+LEFT JOIN customer_phones CP ON CP.PARTY_ID = NC.PARTY_ID;
+
+-- Solution 2 — Derived-table (subquery + join) rewrite
+-- Equivalent logic to the CTE rewrite; differs only in syntax structure.
+
+SELECT
+  P.PARTY_ID,
+  PER.FIRST_NAME,
+  PER.LAST_NAME,
+  CE.EMAIL,
+  CP.PHONE,
+  P.CREATED_DATE AS ENTRY_DATE
+FROM PARTY P
+JOIN PERSON PER ON PER.PARTY_ID = P.PARTY_ID
+LEFT JOIN (
+  SELECT PCM.PARTY_ID, MIN(CM.INFO_STRING) AS EMAIL
+  FROM PARTY_CONTACT_MECH PCM
+  JOIN CONTACT_MECH CM ON PCM.CONTACT_MECH_ID = CM.CONTACT_MECH_ID
+  WHERE CM.CONTACT_MECH_TYPE_ID = 'EMAIL_ADDRESS'
+    AND (PCM.THRU_DATE IS NULL OR PCM.THRU_DATE > NOW())
+  GROUP BY PCM.PARTY_ID
+) CE ON CE.PARTY_ID = P.PARTY_ID
+LEFT JOIN (
+  SELECT PCM.PARTY_ID, MIN(TN.CONTACT_NUMBER) AS PHONE
+  FROM PARTY_CONTACT_MECH PCM
+  JOIN TELECOM_NUMBER TN ON PCM.CONTACT_MECH_ID = TN.CONTACT_MECH_ID
+  WHERE (PCM.THRU_DATE IS NULL OR PCM.THRU_DATE > NOW())
+  GROUP BY PCM.PARTY_ID
+) CP ON CP.PARTY_ID = P.PARTY_ID
+WHERE P.CREATED_DATE >= '2026-05-01'
+  AND P.CREATED_DATE <= '2026-05-31';
 
 --Finding Physical Products FOR merchandising teams
 
@@ -75,10 +192,10 @@ SELECT
     gi_erp.ID_VALUE AS ERP_ID,
     gi_prod.ID_VALUE AS SHOPIFY_PROD_ID
 FROM product p
-JOIN good_identification gi_erp 
+LEFT JOIN good_identification gi_erp 
     ON gi_erp.PRODUCT_ID = p.PRODUCT_ID 
     AND gi_erp.GOOD_IDENTIFICATION_TYPE_ID = 'ERP_ID'
-JOIN good_identification gi_prod 
+LEFT JOIN good_identification gi_prod 
     ON gi_prod.PRODUCT_ID = p.PRODUCT_ID 
     AND gi_prod.GOOD_IDENTIFICATION_TYPE_ID = 'SHOPIFY_PROD_ID';
 
@@ -252,6 +369,18 @@ and oh.ORDER_DATE >= '2023-01-01 00:00:00' and oh.ORDER_DATE <= '2023-12-31 00:0
 select count(*) from order_status os 
 where os.STATUS_ID = 'ORDER_CANCELLED' 
 and os.CHANGE_REASON is not null;
+
+-- 12 Product Threshold Value
+-- Business Problem The retailer has set a threshild value for products that are sold online, in order to avoid over selling.
+
+-- Fields to Retrieve:
+
+-- PRODUCT ID
+-- THRESHOLD
+
+SELECT 
+PRODUCT_ID, MINIMUM_STOCK AS 'THRESHOLD'
+FROM PRODUCT_FACILITY WHERE FACILITY_ID = 'CONFIGURATION';
 
 
 
